@@ -19,7 +19,6 @@ export default function KelolaJurusanPage() {
         try {
             const res = await fetch('/api/jurusan');
             const data = await res.json();
-            
             if (res.ok) {
                 setJurusan(data);
             } else {
@@ -39,25 +38,21 @@ export default function KelolaJurusanPage() {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         setMessage('');
-
         const method = isEdit ? 'PATCH' : 'POST';
         const url = isEdit ? `/api/jurusan/${currentId}` : '/api/jurusan';
-
         try {
             const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
-
             const data = await res.json();
-
             if (res.ok) {
                 setMessage(`Jurusan ${isEdit ? 'diperbarui' : 'ditambahkan'} berhasil!`);
                 setFormData({ kode: '', nama: '', deskripsi: '' });
                 setIsEdit(false);
                 setCurrentId(null);
-                fetchJurusan(); 
+                fetchJurusan();
             } else {
                 setMessage(`Gagal: ${data.error || data.message || 'Terjadi kesalahan'}`);
             }
@@ -75,7 +70,6 @@ export default function KelolaJurusanPage() {
 
     const handleDelete = async (id) => {
         if (!confirm('Apakah Anda yakin ingin menghapus jurusan ini? Ini akan menghapus semua relasi dan hasil perhitungan terkait!')) return;
-
         try {
             const res = await fetch(`/api/jurusan/${id}`, { method: 'DELETE' });
             if (res.ok) {
@@ -90,68 +84,107 @@ export default function KelolaJurusanPage() {
         }
     };
 
-    if (loading) return <div style={styles.container}>Memuat data master...</div>;
+    if (loading) return (
+        <div className="flex justify-center items-center min-h-screen">
+            <span className="text-lg text-gray-600">Memuat data master...</span>
+        </div>
+    );
 
     return (
-        <div style={styles.container}>
-            <h1 style={styles.header}>{isEdit ? 'Edit Jurusan' : 'Tambah Jurusan Baru'}</h1>
-            
-            <form onSubmit={handleFormSubmit} style={styles.form}>
-                <input name="kode" type="text" placeholder="Kode (e.g., MPLB)" onChange={handleInputChange} value={formData.kode} required style={styles.input} />
-                <input name="nama" type="text" placeholder="Nama Jurusan Lengkap" onChange={handleInputChange} value={formData.nama} required style={styles.input} />
-                <textarea name="deskripsi" placeholder="Deskripsi Singkat (Opsional)" onChange={handleInputChange} value={formData.deskripsi} style={styles.input} rows="3" />
-                
-                <button type="submit" style={styles.button}>
-                    {isEdit ? 'SIMPAN PERUBAHAN' : 'TAMBAH JURUSAN'}
-                </button>
-                {isEdit && <button type="button" onClick={() => {setIsEdit(false); setFormData({ kode: '', nama: '', deskripsi: '' }); setCurrentId(null);}} style={{...styles.button, backgroundColor: '#6c757d'}}>Batal Edit</button>}
+        <div className="max-w-3xl mx-auto px-4 py-8">
+            <h1 className="text-2xl md:text-3xl font-bold text-blue-600 mb-6">{isEdit ? 'Edit Jurusan' : 'Tambah Jurusan Baru'}</h1>
+            <form onSubmit={handleFormSubmit} className="flex flex-col gap-4 bg-white p-4 rounded-lg shadow border">
+                <input
+                    name="kode"
+                    type="text"
+                    placeholder="Kode (e.g., MPLB)"
+                    onChange={handleInputChange}
+                    value={formData.kode}
+                    required
+                    className="px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-400"
+                />
+                <input
+                    name="nama"
+                    type="text"
+                    placeholder="Nama Jurusan Lengkap"
+                    onChange={handleInputChange}
+                    value={formData.nama}
+                    required
+                    className="px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-400"
+                />
+                <textarea
+                    name="deskripsi"
+                    placeholder="Deskripsi Singkat (Opsional)"
+                    onChange={handleInputChange}
+                    value={formData.deskripsi}
+                    rows="3"
+                    className="px-3 py-2 border rounded focus:outline-none focus:ring focus:border-blue-400"
+                />
+                <div className="flex gap-2 flex-wrap">
+                    <button
+                        type="submit"
+                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                    >
+                        {isEdit ? 'SIMPAN PERUBAHAN' : 'TAMBAH JURUSAN'}
+                    </button>
+                    {isEdit && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsEdit(false);
+                                setFormData({ kode: '', nama: '', deskripsi: '' });
+                                setCurrentId(null);
+                            }}
+                            className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition"
+                        >
+                            Batal Edit
+                        </button>
+                    )}
+                </div>
             </form>
-            
-            {message && <p style={{ marginTop: '15px', color: message.includes('berhasil') ? 'green' : 'red' }}>{message}</p>}
-
-            <h2 style={styles.subHeader}>Daftar Jurusan ({jurusan.length})</h2>
-            <table style={styles.table}>
-                <thead>
-                    <tr>
-                        <th style={styles.th}>ID</th>
-                        <th style={styles.th}>Kode</th>
-                        <th style={styles.th}>Nama Jurusan</th>
-                        <th style={styles.th}>Deskripsi</th>
-                        <th style={styles.th}>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {jurusan.map(item => (
-                        <tr key={item.id}>
-                            <td style={styles.td}>{item.id}</td>
-                            <td style={styles.td}>{item.kode}</td>
-                            <td style={styles.tdLeft}>{item.nama}</td>
-                            <td style={styles.tdLeft}>{item.deskripsi || '-'}</td>
-                            <td style={styles.tdActions}>
-                                <button onClick={() => handleEdit(item)} style={{...styles.actionButton, backgroundColor: '#ffc107'}}>Edit</button>
-                                <button onClick={() => handleDelete(item.id)} style={{...styles.actionButton, backgroundColor: '#dc3545'}}>Hapus</button>
-                            </td>
+            {message && (
+                <p className={`mt-4 text-sm ${message.includes('berhasil') ? 'text-green-600' : 'text-red-600'}`}>
+                    {message}
+                </p>
+            )}
+            <h2 className="mt-10 mb-4 text-xl font-semibold border-b pb-2">Daftar Jurusan ({jurusan.length})</h2>
+            <div className="overflow-x-auto">
+                <table className="min-w-full bg-white rounded shadow border">
+                    <thead>
+                        <tr>
+                            <th className="px-3 py-2 border-b bg-gray-100 text-left text-xs md:text-sm font-medium">ID</th>
+                            <th className="px-3 py-2 border-b bg-gray-100 text-left text-xs md:text-sm font-medium">Kode</th>
+                            <th className="px-3 py-2 border-b bg-gray-100 text-left text-xs md:text-sm font-medium">Nama Jurusan</th>
+                            <th className="px-3 py-2 border-b bg-gray-100 text-left text-xs md:text-sm font-medium">Deskripsi</th>
+                            <th className="px-3 py-2 border-b bg-gray-100 text-left text-xs md:text-sm font-medium">Aksi</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {jurusan.map(item => (
+                            <tr key={item.id} className="hover:bg-gray-50">
+                                <td className="px-3 py-2 border-b text-center text-xs md:text-sm">{item.id}</td>
+                                <td className="px-3 py-2 border-b text-center text-xs md:text-sm">{item.kode}</td>
+                                <td className="px-3 py-2 border-b text-left text-xs md:text-sm">{item.nama}</td>
+                                <td className="px-3 py-2 border-b text-left text-xs md:text-sm">{item.deskripsi || '-'}</td>
+                                <td className="px-3 py-2 border-b flex gap-2 flex-wrap">
+                                    <button
+                                        onClick={() => handleEdit(item)}
+                                        className="px-2 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500 text-xs md:text-sm transition"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(item.id)}
+                                        className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs md:text-sm transition"
+                                    >
+                                        Hapus
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
-
-// Reuse styles from Kriteria page
-const styles = {
-    container: { maxWidth: '900px', margin: '50px auto', padding: '20px' },
-    header: { color: '#007bff', marginBottom: '25px' },
-    subHeader: { marginTop: '40px', marginBottom: '15px', borderBottom: '1px solid #ddd', paddingBottom: '5px' },
-    form: { display: 'flex', flexDirection: 'column', gap: '10px', padding: '15px', border: '1px solid #ccc', borderRadius: '6px' },
-    input: { padding: '10px', border: '1px solid #ddd', borderRadius: '4px' },
-    button: { padding: '10px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' },
-    table: { width: '100%', borderCollapse: 'collapse', marginTop: '20px' },
-    th: { border: '1px solid #ddd', padding: '12px', textAlign: 'left', backgroundColor: '#f2f2f2' },
-    td: { border: '1px solid #ddd', padding: '12px', textAlign: 'center' },
-    tdLeft: { border: '1px solid #ddd', padding: '12px', textAlign: 'left' }, // Untuk nama/deskripsi panjang
-    tdActions: { border: '1px solid #ddd', padding: '12px', display: 'flex', gap: '5px' },
-    actionButton: { padding: '5px 10px', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' },
-    info: { marginTop: '10px', fontSize: '0.9em', color: '#888' }
-};

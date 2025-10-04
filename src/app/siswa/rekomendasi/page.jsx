@@ -97,14 +97,24 @@ export default function RekomendasiPage() {
               const score = parseFloat(r.skor) || 0;
               const pct = max > 0 ? Math.round((score / max) * 100) : 0;
               return (
-                <div key={r.jurusan} className="flex items-center gap-3">
-                  <div className="w-40 text-sm text-slate-700 dark:text-slate-200">{r.jurusan}</div>
-                  <div className="flex-1">
-                    <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-md h-4 overflow-hidden">
-                      <div className={`h-4 rounded-md ${r.ranking === 1 ? 'bg-amber-400' : 'bg-teal-500'}`} style={{ width: `${pct}%` }} />
+                <div key={r.jurusan} className="flex items-center gap-3" title={`${r.jurusan} — ${score.toFixed(4)}`}>
+                  <div className="w-40 text-sm text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 text-xs font-medium">{r.ranking}</span>
+                    <div className="truncate">
+                      <div className="font-medium">{r.jurusan}</div>
+                      {r.kode && <div className="text-xs text-slate-500">{r.kode}</div>}
                     </div>
                   </div>
-                  <div className="w-24 text-right text-sm font-mono text-slate-600 dark:text-slate-300">{score.toFixed(4)}</div>
+                  <div className="flex-1">
+                    <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-md h-4 overflow-hidden">
+                      <div
+                        className={`h-4 rounded-md ${r.ranking === 1 ? 'bg-amber-400' : 'bg-teal-500'} transition-all duration-700 ease-out`}
+                        style={{ width: `${pct}%` }}
+                        aria-hidden
+                      />
+                    </div>
+                  </div>
+                  <div className="w-28 text-right text-sm font-mono text-slate-600 dark:text-slate-300">{score.toFixed(4)}</div>
                 </div>
               );
             });

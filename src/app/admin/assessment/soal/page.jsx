@@ -20,29 +20,23 @@ export default function KelolaSoalPage() {
         setLoading(true);
         setMessage('');
         try {
-            // Ambil semua data yang diperlukan
             const [resSoal, resKriteria, resJurusan] = await Promise.all([
                 fetch('/api/soal'),
                 fetch('/api/kriteria'),
                 fetch('/api/jurusan')
             ]);
-
             const [dataSoal, dataKriteria, dataJurusan] = await Promise.all([
                 resSoal.json(), resKriteria.json(), resJurusan.json()
             ]);
-
             setSoal(dataSoal);
             setKriteria(dataKriteria);
             setJurusan(dataJurusan);
-            
-            // Set default ID untuk form jika data master ada
             if (dataKriteria.length > 0) {
                 setFormData(prev => ({ ...prev, kriteria_id: dataKriteria[0].id }));
             }
             if (dataJurusan.length > 0) {
                 setFormData(prev => ({ ...prev, jurusan_id: dataJurusan[0].id }));
             }
-            
         } catch (err) {
             setMessage('Gagal memuat data master soal.');
         } finally {
@@ -58,31 +52,25 @@ export default function KelolaSoalPage() {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         setMessage('');
-
         const method = isEdit ? 'PATCH' : 'POST';
         const url = isEdit ? `/api/soal/${currentId}` : '/api/soal';
-
-        // Validasi Kriteria/Jurusan ID harus dipilih jika ada data master
         if (!formData.kriteria_id && kriteria.length > 0) {
             setMessage('Kriteria harus dipilih.');
             return;
         }
-
         try {
             const res = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
-
             const data = await res.json();
-
             if (res.ok) {
                 setMessage(`Soal ${isEdit ? 'diperbarui' : 'ditambahkan'} berhasil!`);
                 setFormData({ pertanyaan: '', kriteria_id: kriteria[0]?.id || '', jurusan_id: jurusan[0]?.id || '', tipe: 'skala' });
                 setIsEdit(false);
                 setCurrentId(null);
-                fetchData(); 
+                fetchData();
             } else {
                 setMessage(`Gagal: ${data.error || data.message || 'Terjadi kesalahan'}`);
             }
@@ -92,11 +80,11 @@ export default function KelolaSoalPage() {
     };
 
     const handleEdit = (item) => {
-        setFormData({ 
-            pertanyaan: item.pertanyaan, 
-            kriteria_id: item.kriteria_id, 
-            jurusan_id: item.jurusan_id || '', // Jurusan ID bisa null
-            tipe: item.tipe 
+        setFormData({
+            pertanyaan: item.pertanyaan,
+            kriteria_id: item.kriteria_id,
+            jurusan_id: item.jurusan_id || '',
+            tipe: item.tipe
         });
         setIsEdit(true);
         setCurrentId(item.id);
@@ -105,7 +93,6 @@ export default function KelolaSoalPage() {
 
     const handleDelete = async (id) => {
         if (!confirm('Apakah Anda yakin ingin menghapus soal ini? Ini akan menghapus semua jawaban siswa terkait.')) return;
-
         try {
             const res = await fetch(`/api/soal/${id}`, { method: 'DELETE' });
             if (res.ok) {
@@ -120,98 +107,142 @@ export default function KelolaSoalPage() {
         }
     };
 
-    if (loading) return <div style={styles.container}>Memuat soal dan data master...</div>;
-    
-    // Validasi dasar
+    if (loading) return (
+        <div className="flex items-center justify-center min-h-screen">
+            <div className="text-lg font-semibold text-blue-600 animate-pulse">Memuat soal dan data master...</div>
+        </div>
+    );
+
     if (kriteria.length === 0 || jurusan.length === 0) {
-        return <div style={styles.container}>
-            <h1 style={{color: 'red'}}>Data Master Belum Lengkap</h1>
-            <p>Silakan lengkapi data kriteria di <Link href="/admin/data-master/kriteria" style={styles.link}>Halaman Kelola Kriteria</Link> dan jurusan di <Link href="/admin/data-master/jurusan" style={styles.link}>Halaman Kelola Jurusan</Link>.</p>
-        </div>;
+        return (
+            <div className="max-w-xl mx-auto mt-16 p-6 bg-white rounded-lg shadow-lg">
+                <h1 className="text-2xl font-bold text-red-600 mb-2">Data Master Belum Lengkap</h1>
+                <p className="mb-2">Silakan lengkapi data kriteria di <Link href="/admin/data-master/kriteria" className="text-blue-600 underline font-semibold">Halaman Kelola Kriteria</Link> dan jurusan di <Link href="/admin/data-master/jurusan" className="text-blue-600 underline font-semibold">Halaman Kelola Jurusan</Link>.</p>
+            </div>
+        );
     }
 
     return (
-        <div style={styles.container}>
-            <h1 style={styles.header}>{isEdit ? 'Edit Soal Assessment' : 'Tambah Soal Assessment Baru'}</h1>
-            
-            <form onSubmit={handleFormSubmit} style={styles.form}>
-                <textarea name="pertanyaan" placeholder="Masukkan teks pertanyaan di sini..." onChange={handleInputChange} value={formData.pertanyaan} required rows="3" style={styles.input} />
-                
-                <div style={styles.selectGroup}>
-                    <select name="kriteria_id" onChange={handleInputChange} value={formData.kriteria_id} required style={{...styles.input, flex: 1}}>
+        <div className="max-w-5xl mx-auto px-4 py-8">
+            <h1 className="text-3xl font-bold text-blue-700 mb-6 text-center drop-shadow-sm">{isEdit ? 'Edit Soal Assessment' : 'Tambah Soal Assessment Baru'}</h1>
+            <form onSubmit={handleFormSubmit} className="bg-white rounded-lg shadow-md p-6 mb-8 flex flex-col gap-4">
+                <textarea
+                    name="pertanyaan"
+                    placeholder="Masukkan teks pertanyaan di sini..."
+                    onChange={handleInputChange}
+                    value={formData.pertanyaan}
+                    required
+                    rows="3"
+                    className="border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+                />
+                <div className="flex flex-col md:flex-row gap-4">
+                    <select
+                        name="kriteria_id"
+                        onChange={handleInputChange}
+                        value={formData.kriteria_id}
+                        required
+                        className="border border-gray-300 rounded-md p-3 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
                         <option value="">-- Pilih Kriteria --</option>
                         {kriteria.map(k => (
                             <option key={k.id} value={k.id}>{k.nama}</option>
                         ))}
                     </select>
-
-                    <select name="jurusan_id" onChange={handleInputChange} value={formData.jurusan_id} style={{...styles.input, flex: 1}}>
+                    <select
+                        name="jurusan_id"
+                        onChange={handleInputChange}
+                        value={formData.jurusan_id}
+                        className="border border-gray-300 rounded-md p-3 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
                         <option value="">-- Pilih Jurusan (Opsional) --</option>
                         {jurusan.map(j => (
                             <option key={j.id} value={j.id}>{j.nama}</option>
                         ))}
                     </select>
-                    
-                    <select name="tipe" onChange={handleInputChange} value={formData.tipe} required style={{...styles.input, flex: 0.5}}>
+                    <select
+                        name="tipe"
+                        onChange={handleInputChange}
+                        value={formData.tipe}
+                        required
+                        className="border border-gray-300 rounded-md p-3 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
                         <option value="skala">Skala 1-5 (Likert)</option>
                         <option value="pilihan">Pilihan Ganda</option>
                         <option value="isian">Isian Singkat</option>
                     </select>
                 </div>
-                
-                <button type="submit" style={styles.button}>
-                    {isEdit ? 'SIMPAN PERUBAHAN' : 'TAMBAH SOAL'}
-                </button>
-                {isEdit && <button type="button" onClick={() => {setIsEdit(false); setFormData({ pertanyaan: '', kriteria_id: kriteria[0]?.id || '', jurusan_id: jurusan[0]?.id || '', tipe: 'skala' }); setCurrentId(null);}} style={{...styles.button, backgroundColor: '#6c757d'}}>Batal Edit</button>}
+                <div className="flex gap-3 mt-2">
+                    <button
+                        type="submit"
+                        className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-md shadow transition"
+                    >
+                        {isEdit ? 'SIMPAN PERUBAHAN' : 'TAMBAH SOAL'}
+                    </button>
+                    {isEdit && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setIsEdit(false);
+                                setFormData({ pertanyaan: '', kriteria_id: kriteria[0]?.id || '', jurusan_id: jurusan[0]?.id || '', tipe: 'skala' });
+                                setCurrentId(null);
+                            }}
+                            className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-md shadow transition"
+                        >
+                            Batal Edit
+                        </button>
+                    )}
+                </div>
+                {message && (
+                    <p className={`mt-2 font-medium ${message.includes('berhasil') ? 'text-green-600' : 'text-red-600'}`}>
+                        {message}
+                    </p>
+                )}
             </form>
-            
-            {message && <p style={{ marginTop: '15px', color: message.includes('berhasil') ? 'green' : 'red' }}>{message}</p>}
-
-            <h2 style={styles.subHeader}>Daftar Soal Assessment ({soal.length})</h2>
-            <table style={styles.table}>
-                <thead>
-                    <tr>
-                        <th style={styles.th}>ID</th>
-                        <th style={styles.th}>Pertanyaan</th>
-                        <th style={styles.th}>Kriteria</th>
-                        <th style={styles.th}>Jurusan</th>
-                        <th style={styles.th}>Tipe</th>
-                        <th style={styles.th}>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {soal.map(item => (
-                        <tr key={item.id}>
-                            <td style={styles.td}>{item.id}</td>
-                            <td style={styles.tdLeft}>{item.pertanyaan.substring(0, 80)}...</td>
-                            <td style={styles.td}>{item.kriteria_nama}</td>
-                            <td style={styles.td}>{item.jurusan_nama || 'Umum'}</td>
-                            <td style={styles.td}>{item.tipe}</td>
-                            <td style={styles.tdActions}>
-                                <button onClick={() => handleEdit(item)} style={{...styles.actionButton, backgroundColor: '#ffc107'}}>Edit</button>
-                                <button onClick={() => handleDelete(item.id)} style={{...styles.actionButton, backgroundColor: '#dc3545'}}>Hapus</button>
-                            </td>
+            <h2 className="text-xl font-bold mb-4 mt-8 border-b pb-2 text-gray-700">Daftar Soal Assessment ({soal.length})</h2>
+            <div className="overflow-x-auto">
+                <table className="min-w-full bg-white rounded-lg shadow-md">
+                    <thead>
+                        <tr className="bg-blue-100">
+                            <th className="py-3 px-2 text-center font-semibold text-gray-700">ID</th>
+                            <th className="py-3 px-2 text-left font-semibold text-gray-700">Pertanyaan</th>
+                            <th className="py-3 px-2 text-center font-semibold text-gray-700">Kriteria</th>
+                            <th className="py-3 px-2 text-center font-semibold text-gray-700">Jurusan</th>
+                            <th className="py-3 px-2 text-center font-semibold text-gray-700">Tipe</th>
+                            <th className="py-3 px-2 text-center font-semibold text-gray-700">Aksi</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {soal.map(item => (
+                            <tr key={item.id} className="hover:bg-blue-50 transition">
+                                <td className="py-2 px-2 text-center">{item.id}</td>
+                                <td className="py-2 px-2 text-left">{item.pertanyaan.length > 80 ? item.pertanyaan.substring(0, 80) + '...' : item.pertanyaan}</td>
+                                <td className="py-2 px-2 text-center">{item.kriteria_nama}</td>
+                                <td className="py-2 px-2 text-center">{item.jurusan_nama || 'Umum'}</td>
+                                <td className="py-2 px-2 text-center capitalize">{item.tipe}</td>
+                                <td className="py-2 px-2 flex gap-2 justify-center">
+                                    <button
+                                        onClick={() => handleEdit(item)}
+                                        className="bg-yellow-400 hover:bg-yellow-500 text-white font-semibold py-1 px-3 rounded shadow transition"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(item.id)}
+                                        className="bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded shadow transition"
+                                    >
+                                        Hapus
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
+                        {soal.length === 0 && (
+                            <tr>
+                                <td colSpan={6} className="py-4 text-center text-gray-500">Belum ada soal assessment.</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
-
-const styles = {
-    container: { maxWidth: '1000px', margin: '50px auto', padding: '20px' },
-    header: { color: '#007bff', marginBottom: '25px' },
-    subHeader: { marginTop: '40px', marginBottom: '15px', borderBottom: '1px solid #ddd', paddingBottom: '5px' },
-    link: { color: '#007bff', textDecoration: 'none', fontWeight: 'bold' },
-    form: { display: 'flex', flexDirection: 'column', gap: '10px', padding: '15px', border: '1px solid #ccc', borderRadius: '6px' },
-    input: { padding: '10px', border: '1px solid #ddd', borderRadius: '4px' },
-    selectGroup: { display: 'flex', gap: '10px' },
-    button: { padding: '10px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' },
-    table: { width: '100%', borderCollapse: 'collapse', marginTop: '20px' },
-    th: { border: '1px solid #ddd', padding: '12px', textAlign: 'center', backgroundColor: '#f2f2f2' },
-    td: { border: '1px solid #ddd', padding: '12px', textAlign: 'center' },
-    tdLeft: { border: '1px solid #ddd', padding: '12px', textAlign: 'left' },
-    tdActions: { border: '1px solid #ddd', padding: '12px', display: 'flex', gap: '5px', justifyContent: 'center' },
-    actionButton: { padding: '5px 10px', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }
-};
