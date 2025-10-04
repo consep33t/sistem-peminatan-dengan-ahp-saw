@@ -1,0 +1,5 @@
+DB_HOST="localhost"
+DB_USER="root"
+DB_PASS="consep33t"
+DB_NAME="sistem_peminatan"
+JWT_SECRET="super_secret_key"
