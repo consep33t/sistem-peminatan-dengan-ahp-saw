@@ -42,14 +42,14 @@ export default function SiswaLayout({ children }) {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-4">
-              <Link href="/" className="text-teal-600 font-bold text-lg">
+              <Link href="/" className="text-teal-600 font-bold text-lg cursor-pointer">
                 Peminatan
               </Link>
               {isDesktop && (
                 <nav className="items-center space-x-3 md:flex sm:hidden">
-                  <Link href="/siswa/dashboard" className="px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700">Dashboard</Link>
-                  <Link href="/siswa/assessment" className="px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700">Assessment</Link>
-                  <Link href="/siswa/rekomendasi" className="px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700">Rekomendasi</Link>
+                  <Link href="/siswa/dashboard" className="px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">Dashboard</Link>
+                  <Link href="/siswa/assessment" className="px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">Assessment</Link>
+                  <Link href="/siswa/rekomendasi" className="px-3 py-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer">Rekomendasi</Link>
                 </nav>
               )}
             </div>
@@ -62,16 +62,16 @@ export default function SiswaLayout({ children }) {
                     <div className="text-xs text-slate-500 dark:text-slate-400">{user.kelas ? `Kelas ${user.kelas}` : ''}</div>
                   </div>
                 ) : (
-                  <Link href="/login" className="px-3 py-2 text-sm text-teal-600 hover:underline">Login</Link>
+                  <Link href="/login" className="px-3 py-2 text-sm text-teal-600 hover:underline cursor-pointer">Login</Link>
                 )}
 
-                <button onClick={handleLogout} className="btn-danger">Logout</button>
+                <button onClick={handleLogout} className="border border-black rounded-md py-1 px-2 cursor-pointer">Logout</button>
               </div>
 
               {/* Mobile menu button */}
               <button
                 onClick={() => setOpen(!open)}
-                className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
+                className="md:hidden inline-flex items-center justify-center p-2 rounded-md text-slate-600 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer"
                 aria-expanded={open}
               >
                 <span className="sr-only">Open main menu</span>
@@ -91,9 +91,9 @@ export default function SiswaLayout({ children }) {
         {open && (
           <div className="md:hidden border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              <Link href="/siswa/dashboard" className="block px-3 py-2 rounded-md">Dashboard</Link>
-              <Link href="/siswa/assessment" className="block px-3 py-2 rounded-md">Assessment</Link>
-              <Link href="/siswa/rekomendasi" className="block px-3 py-2 rounded-md">Rekomendasi</Link>
+              <Link href="/siswa/dashboard" className="block px-3 py-2 rounded-md cursor-pointer">Dashboard</Link>
+              <Link href="/siswa/assessment" className="block px-3 py-2 rounded-md cursor-pointer">Assessment</Link>
+              <Link href="/siswa/rekomendasi" className="block px-3 py-2 rounded-md cursor-pointer">Rekomendasi</Link>
               <div className="border-t border-slate-100 dark:border-slate-700 mt-2 pt-2 px-3">
                 {user ? (
                   <div className="flex items-center justify-between">
@@ -101,10 +101,10 @@ export default function SiswaLayout({ children }) {
                       <div className="font-medium">{user.nama || user.username}</div>
                       <div className="text-xs text-slate-500 dark:text-slate-400">{user.kelas ? `Kelas ${user.kelas}` : ''}</div>
                     </div>
-                    <button onClick={handleLogout} className="ml-4 btn-danger">Logout</button>
+                    <button onClick={handleLogout} className="ml-4 btn-danger cursor-pointer">Logout</button>
                   </div>
                 ) : (
-                  <Link href="/login" className="block px-3 py-2">Login</Link>
+                  <Link href="/login" className="block px-3 py-2 cursor-pointer">Login</Link>
                 )}
               </div>
             </div>

@@ -66,10 +66,6 @@ export default function SiswaDashboard() {
   return (
     <div className="max-w-3xl mx-auto p-6 card">
       <h1 className="text-2xl text-teal-600 font-semibold text-center">Dashboard Siswa</h1>
-      <p className="text-center text-lg mt-4">Selamat Datang, <strong>{profile.nama || profile.username}</strong>!</p>
-      <div className="flex justify-center mt-4">
-        <button onClick={handleLogout} className="btn-danger">Logout</button>
-      </div>
 
       <div className="mt-6 border rounded-md p-4 bg-gray-50 dark:bg-slate-800">
         <h2 className="text-lg font-medium mb-3">Data Profil</h2>
