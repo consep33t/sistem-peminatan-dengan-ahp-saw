@@ -163,14 +163,14 @@ export default function AHPInputPage() {
         }
     };
 
-    if (loading) return <div style={styles.container}>Memuat data kriteria...</div>;
+    if (loading) return <div className="max-w-5xl mx-auto mt-12 p-6 text-center">Memuat data kriteria...</div>;
 
     if (kriteria.length < 3) {
         return (
-            <div style={{ ...styles.container, textAlign: 'center', color: 'red' }}>
-                <h1 style={styles.header}>Kriteria Minimal 3</h1>
-                <p>Silakan tambah kriteria di <Link href="/admin/data-master/kriteria" style={styles.link}>Halaman Kelola Kriteria</Link>.</p>
-                {message && <p style={{ marginTop: '10px', color: 'red' }}>{message}</p>}
+            <div className="max-w-5xl mx-auto mt-12 p-6 text-center text-red-600">
+                <h1 className="text-2xl font-semibold">Kriteria Minimal 3</h1>
+                <p>Silakan tambah kriteria di <Link href="/admin/data-master/kriteria" className="text-teal-600 hover:underline">Halaman Kelola Kriteria</Link>.</p>
+                {message && <p className="mt-2 text-red-600">{message}</p>}
             </div>
         );
     }
@@ -186,172 +186,114 @@ export default function AHPInputPage() {
     const RI_value = { 3: 0.58, 4: 0.90, 5: 1.12, 6: 1.24, 7: 1.32 }[n] || 1.49;
     const isNotConsistent = results && parseFloat(results.CR) > 0.10;
     
-    const dynamicResultsBoxStyle = {
-        ...styles.resultsBox,
-        borderColor: isNotConsistent ? 'red' : '#28a745',
-    };
     // --- Akhir Logic Frontend Tambahan ---
 
 
-    return (
-        <div style={styles.container}>
-            <h1 style={styles.header}>Perhitungan Bobot Kriteria (AHP)</h1>
-            <p style={styles.info}>**Total Kriteria:** {kriteria.length} ({kriteria.map(k => k.nama).join(', ')})</p>
-            
-            {message && <p style={{ ...styles.message, color: message.includes('Sukses') || message.includes('Berhasil') ? 'green' : 'red' }}>{message}</p>}
+        return (
+                <div className="max-w-5xl mx-auto mt-8 p-6">
+                        <h1 className="text-2xl text-teal-600 font-semibold">Perhitungan Bobot Kriteria (AHP)</h1>
+                        <p className="text-sm text-slate-600 mt-1">Total Kriteria: <span className="font-medium">{kriteria.length}</span> ({kriteria.map(k => k.nama).join(', ')})</p>
 
-            {/* Matriks Perbandingan */}
-            <div style={styles.matrixSection}>
-                <h2 style={styles.subHeader}>1. Input Matriks Perbandingan Berpasangan</h2>
-                <table style={styles.table}>
-                    <thead>
-                        <tr>
-                            <th style={styles.th}>Kriteria</th>
-                            {kriteria.map(k => (<th key={k.id} style={styles.th}>{k.nama}</th>))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {kriteria.map((k1) => (
-                            <tr key={k1.id}>
-                                <td style={{...styles.td, fontWeight: 'bold', backgroundColor: '#f2f2f2'}}>{k1.nama}</td>
-                                {kriteria.map((k2) => {
-                                    const key = `${k1.id}-${k2.id}`;
-                                    // Kasus 1: Diagonal (Selalu 1)
-                                    if (k1.id === k2.id) {
-                                        return <td key={k2.id} style={{...styles.td, backgroundColor: '#ddd'}}>1</td>;
-                                    // Kasus 2: Nilai Kebalikan (Reciprocal, Input di kolom kebalikannya)
-                                    } else if (k1.id > k2.id) { 
-                                        return <td key={k2.id} style={{...styles.td, color: '#007bff'}}>{(1 / (matrixValues[`${k2.id}-${k1.id}`] || 1)).toFixed(4)}</td>;
-                                    // Kasus 3: Input Utama
-                                    } else {
-                                        return (
-                                            <td key={k2.id} style={styles.tdInput}>
-                                                <input 
-                                                    type="number" 
-                                                    min="1" 
-                                                    max="9" 
-                                                    step="0.0001" // Ganti step ke 0.0001 untuk presisi desimal
-                                                    value={matrixValues[key] || 1}
-                                                    onChange={(e) => handleMatrixChange(k1.id, k2.id, e.target.value)}
-                                                    style={styles.input}
-                                                />
-                                            </td>
-                                        );
-                                    }
-                                })}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <button onClick={handleSaveMatrix} disabled={loading} style={styles.buttonSave}>
-                    {loading && message.includes('menyimpan') ? 'Menyimpan...' : '1. Simpan Matriks'}
-                </button>
-            </div>
+                        {message && <p className={`mt-4 p-2 rounded ${message.includes('Sukses') || message.includes('Berhasil') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>{message}</p>}
 
-            {/* Perhitungan Hasil */}
-            <div style={styles.resultsSection}>
-                <h2 style={styles.subHeader}>2. Hitung Bobot Prioritas & Konsistensi</h2>
-                <button onClick={handleCalculateAHP} disabled={loading} style={styles.buttonCalculate}>
-                    {loading && message.includes('menghitung') ? 'Menghitung...' : '2. Hitung Bobot & CR'}
-                </button>
-                
-                {/* Hasil Perhitungan AHP */}
-                {results && (
-                    <div style={dynamicResultsBoxStyle}> 
-                        <h3>Hasil Perhitungan AHP</h3>
-                        
-                        {/* Tabel Bobot Akhir */}
-                        <h4 style={{marginTop: '15px'}}>Tabel Bobot Akhir:</h4>
-                        <table style={styles.table}>
-                             <thead>
-                                <tr>
-                                    <th style={styles.th}>Kriteria</th>
-                                    <th style={styles.th}>Bobot (Prioritas)</th>
-                                    <th style={styles.th}>Persentase</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {results.bobot.map((b, i) => {
-                                    const totalBobot = results.bobot.reduce((sum, item) => sum + parseFloat(item.bobot), 0);
-                                    const percentage = (parseFloat(b.bobot) / totalBobot) * 100;
+                        {/* Matriks Perbandingan */}
+                        <section className="mt-6">
+                                <h2 className="text-lg font-medium border-b pb-2">1. Input Matriks Perbandingan Berpasangan</h2>
 
-                                    return (
-                                        <tr key={i}>
-                                            <td style={styles.td}>{b.nama}</td>
-                                            <td style={styles.td}>{parseFloat(b.bobot).toFixed(6)}</td>
-                                            <td style={styles.td}>{percentage.toFixed(2)}%</td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
+                                <div className="overflow-auto mt-4">
+                                    <table className="w-full text-center border-collapse">
+                                        <thead>
+                                            <tr className="bg-gray-100">
+                                                <th className="p-2">Kriteria</th>
+                                                {kriteria.map(k => (<th key={k.id} className="p-2">{k.nama}</th>))}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {kriteria.map((k1) => (
+                                                <tr key={k1.id}>
+                                                    <td className="p-2 font-semibold bg-gray-50">{k1.nama}</td>
+                                                    {kriteria.map((k2) => {
+                                                        const key = `${k1.id}-${k2.id}`;
+                                                        if (k1.id === k2.id) {
+                                                            return <td key={k2.id} className="p-2 bg-gray-200">1</td>;
+                                                        } else if (k1.id > k2.id) {
+                                                            return <td key={k2.id} className="p-2 text-teal-600">{(1 / (matrixValues[`${k2.id}-${k1.id}`] || 1)).toFixed(4)}</td>;
+                                                        } else {
+                                                            return (
+                                                                <td key={k2.id} className="p-2">
+                                                                    <input
+                                                                        type="number"
+                                                                        min="1"
+                                                                        max="9"
+                                                                        step="0.0001"
+                                                                        value={matrixValues[key] || 1}
+                                                                        onChange={(e) => handleMatrixChange(k1.id, k2.id, e.target.value)}
+                                                                        className="w-24 px-2 py-1 border rounded text-center"
+                                                                    />
+                                                                </td>
+                                                            );
+                                                        }
+                                                    })}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
 
+                                <div className="mt-4">
+                                    <button onClick={handleSaveMatrix} disabled={loading} className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 rounded-md font-semibold">{loading && message.includes('menyimpan') ? 'Menyimpan...' : '1. Simpan Matriks'}</button>
+                                </div>
+                        </section>
 
-                        {/* Perhitungan Konsistensi Detail */}
-                        <h4 style={{marginTop: '25px'}}>Cek Konsistensi (CR)</h4>
-                        
-                        {/* Ganti elemen p terluar dengan div */}
-                        <div style={styles.ciFormula}> 
-                            <p><strong>CI = ($\lambda$max - n) / (n - 1)</strong></p>
-                            <p style={styles.ciValue}>
-                                CI = ({results.lambdaMax} - {n}) / ({n} - 1) 
-                                = {CI_value.toFixed(6)}
-                            </p>
-                        </div>
+                        {/* Perhitungan Hasil */}
+                        <section className="mt-8">
+                                <h2 className="text-lg font-medium border-b pb-2">2. Hitung Bobot Prioritas & Konsistensi</h2>
+                                <div className="mt-3">
+                                        <button onClick={handleCalculateAHP} disabled={loading} className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-semibold">{loading && message.includes('menghitung') ? 'Menghitung...' : '2. Hitung Bobot & CR'}</button>
+                                </div>
 
-                        <div style={styles.ciFormula}>
-                            <p><strong>CR = CI / RI</strong></p>
-                            <p style={styles.ciValue}>
-                                CR = {CI_value.toFixed(6)} / {RI_value.toFixed(2)} 
-                                = {results.CR}
-                            </p>
-                        </div>
-                        
+                                {results && (
+                                        <div className={`mt-4 p-4 rounded border ${isNotConsistent ? 'border-red-400 bg-red-50' : 'border-green-400 bg-green-50'}`}>
+                                                <h3 className="text-lg font-semibold">Hasil Perhitungan AHP</h3>
 
-                        <p style={styles.statusMessage}>
-                            Status: <span style={{ color: isNotConsistent ? 'red' : 'green', fontWeight: 'bold' }}>
-                                {parseFloat(results.CR) > 0.10 ? 'TIDAK KONSISTEN' : 'KONSISTEN'}
-                            </span>
-                        </p>
-                        <p style={{...styles.statusMessage, color: '#333'}}>
-                            {results.message}
-                        </p>
-                        
-                    </div>
-                )}
-            </div>
-        </div>
-    );
+                                                <h4 className="mt-3 font-medium">Tabel Bobot Akhir:</h4>
+                                                <div className="overflow-auto mt-2">
+                                                    <table className="w-full text-center border-collapse">
+                                                        <thead>
+                                                            <tr className="bg-gray-100">
+                                                                <th className="p-2">Kriteria</th>
+                                                                <th className="p-2">Bobot (Prioritas)</th>
+                                                                <th className="p-2">Persentase</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {results.bobot.map((b, i) => {
+                                                                const totalBobot = results.bobot.reduce((sum, item) => sum + parseFloat(item.bobot), 0);
+                                                                const percentage = (parseFloat(b.bobot) / totalBobot) * 100;
+
+                                                                return (
+                                                                    <tr key={i}>
+                                                                        <td className="p-2">{b.nama}</td>
+                                                                        <td className="p-2">{parseFloat(b.bobot).toFixed(6)}</td>
+                                                                        <td className="p-2">{percentage.toFixed(2)}%</td>
+                                                                    </tr>
+                                                                );
+                                                            })}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+
+                                                <h4 className="mt-4 font-medium">Cek Konsistensi (CR)</h4>
+                                                <div className="mt-2 border-t pt-2">
+                                                        <p className="font-mono">CI = ({results.lambdaMax} - {n}) / ({n} - 1) = {CI_value.toFixed(6)}</p>
+                                                        <p className="font-mono mt-1">CR = {CI_value.toFixed(6)} / {RI_value.toFixed(2)} = {results.CR}</p>
+                                                </div>
+
+                                                <p className="mt-3 font-semibold">Status: <span className={isNotConsistent ? 'text-red-600' : 'text-green-600'}>{parseFloat(results.CR) > 0.10 ? 'TIDAK KONSISTEN' : 'KONSISTEN'}</span></p>
+                                                <p className="text-sm text-slate-700 mt-2">{results.message}</p>
+                                        </div>
+                                )}
+                        </section>
+                </div>
+        );
 }
-
-const styles = {
-    container: { maxWidth: '1000px', margin: '50px auto', padding: '20px' },
-    header: { color: '#007bff', marginBottom: '20px' },
-    subHeader: { marginTop: '30px', marginBottom: '15px', borderBottom: '1px solid #ddd', paddingBottom: '5px', fontSize: '1.2em' },
-    info: { color: '#555', marginBottom: '20px' },
-    link: { color: '#007bff', textDecoration: 'none', fontWeight: 'bold' },
-    message: { padding: '10px', border: '1px solid', borderRadius: '4px', marginTop: '10px' },
-    
-    // Matriks Styling
-    table: { width: '100%', borderCollapse: 'collapse', marginTop: '10px' },
-    th: { border: '1px solid #ddd', padding: '8px', textAlign: 'center', backgroundColor: '#f2f2f2' },
-    td: { border: '1px solid #ddd', padding: '8px', textAlign: 'center' },
-    tdInput: { border: '1px solid #ddd', padding: '2px', textAlign: 'center' },
-    input: { width: '80%', padding: '5px', border: 'none', textAlign: 'center' },
-
-    // Buttons
-    buttonSave: { padding: '10px 20px', backgroundColor: '#ffc107', color: '#333', border: 'none', borderRadius: '4px', cursor: 'pointer', marginTop: '20px', fontWeight: 'bold' },
-    buttonCalculate: { padding: '10px 20px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', marginTop: '10px', fontWeight: 'bold' },
-    
-    // Results
-    resultsBox: { 
-        border: '2px solid', 
-        padding: '20px', 
-        borderRadius: '6px', 
-        marginTop: '15px', 
-        backgroundColor: '#f0fff0',
-    },
-    statusMessage: { marginTop: '10px', fontWeight: 'bold' },
-    ciFormula: { marginTop: '15px', borderTop: '1px dashed #ccc', paddingTop: '10px' },
-    ciValue: { fontFamily: 'monospace', fontSize: '1em' }
-};

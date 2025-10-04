@@ -58,33 +58,25 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.header}>Login Sistem Peminatan</h1>
-      <form onSubmit={handleSubmit} style={styles.form}>
-        
-        <input name="username" type="text" placeholder="Username" onChange={(e) => setUsername(e.target.value)} required style={styles.input} />
-        <input name="password" type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required style={styles.input} />
-        
-        <button type="submit" disabled={loading} style={styles.button}>
+    <div className='flex justify-center items-center min-h-screen bg-gray-50'>
+    <div className="max-w-md mx-auto p-6 card border border-gray-300 shadow-lg rounded-2xl">
+      <h1 className="text-2xl font-semibold text-center mb-4">Login Sistem Peminatan</h1>
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <input name="username" type="text" placeholder="Username" onChange={(e) => setUsername(e.target.value)} required className="w-full px-3 py-2 border rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-teal-400" />
+        <input name="password" type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} required className="w-full px-3 py-2 border rounded-md bg-transparent focus:outline-none focus:ring-2 focus:ring-teal-400" />
+
+        <button type="submit" disabled={loading} className="btn-primary mt-2">
           {loading ? 'Memproses...' : 'LOGIN'}
         </button>
       </form>
 
-      {message && <p style={{ ...styles.message, color: message.includes('Berhasil') ? 'green' : 'red' }}>{message}</p>}
-      <p style={{ marginTop: '15px' }}>
-        Belum punya akun? <Link href="/register" style={styles.link}>Daftar di sini</Link>
+      {message && <p className={`mt-4 text-center font-medium ${message.includes('Berhasil') ? 'text-green-600' : 'text-red-600'}`}>{message}</p>}
+
+      <p className="mt-4 text-center text-sm">
+        Belum punya akun? <Link href="/register" className="text-teal-600 hover:underline">Daftar di sini</Link>
       </p>
+    </div>
     </div>
   );
 }
-
-// Simple internal styling
-const styles = {
-    container: { maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' },
-    header: { textAlign: 'center', marginBottom: '20px' },
-    form: { display: 'flex', flexDirection: 'column', gap: '10px' },
-    input: { padding: '10px', border: '1px solid #ddd', borderRadius: '4px' },
-    button: { padding: '10px', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' },
-    message: { textAlign: 'center', marginTop: '10px' },
-    link: { color: '#3498db', textDecoration: 'none' }
-};

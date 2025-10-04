@@ -136,22 +136,19 @@ export default function AssessmentPage() {
     }
   };
 
-  if (loading) {
-    return <div style={styles.container}>Memuat soal assessment...</div>;
-  }
+  if (loading) return <div className="max-w-4xl mx-auto mt-12 p-6 text-center">Memuat soal assessment...</div>;
 
-  if (questions.length === 0) {
-    return <div style={styles.container}>Tidak ada soal assessment yang tersedia.</div>;
-  }
- return (
-    <div style={styles.container}>
-      <h1 style={styles.header}>Assessment Peminatan</h1>
-      <p style={styles.instruction}>Jawablah setiap pertanyaan dengan skala **1 (Sangat Tidak Setuju) hingga 5 (Sangat Setuju)**.</p>
+  if (questions.length === 0) return <div className="max-w-4xl mx-auto mt-12 p-6 text-center">Tidak ada soal assessment yang tersedia.</div>;
 
-      <form onSubmit={handleSubmit}>
+  return (
+    <div className="max-w-4xl mx-auto p-6 card">
+      <h1 className="text-2xl text-teal-600 font-semibold text-center mb-4">Assessment Peminatan</h1>
+      <p className="text-center text-sm text-slate-600 mb-6">Jawablah setiap pertanyaan dengan skala <strong>1 (Sangat Tidak Setuju) hingga 5 (Sangat Setuju)</strong>.</p>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
         {questions.map((q, index) => (
-          <div key={q.id} style={styles.questionCard}>
-            <p><strong>{index + 1}. ({q.jurusan_nama} - {q.kriteria_nama})</strong> {q.pertanyaan}</p>
+          <div key={q.id} className="p-4 border rounded-md bg-white dark:bg-slate-800">
+            <p className="mb-2"><strong>{index + 1}. ({q.jurusan_nama} - {q.kriteria_nama})</strong> {q.pertanyaan}</p>
             <input
               type="number"
               min="1"
@@ -159,26 +156,17 @@ export default function AssessmentPage() {
               value={answers[q.id] || 3}
               onChange={(e) => handleAnswerChange(q.id, e.target.value)}
               required
-              style={styles.input}
+              className="w-24 px-2 py-1 border rounded-md"
             />
           </div>
         ))}
-        
-        <button type="submit" disabled={submitting} style={styles.buttonSubmit}>
+
+        <button type="submit" disabled={submitting} className="w-full btn-primary py-3 text-lg">
           {submitting ? 'Mengirim Jawaban...' : 'Selesaikan Assessment & Hitung Nilai'}
         </button>
       </form>
-      
-      {message && <p style={{ marginTop: '15px', color: message.includes('Berhasil') ? 'green' : 'red' }}>{message}</p>}
+
+      {message && <p className={`mt-4 text-center ${message.includes('Berhasil') ? 'text-green-600' : 'text-red-600'}`}>{message}</p>}
     </div>
   );
 }
-
-const styles = {
-    container: { maxWidth: '900px', margin: '50px auto', padding: '20px', border: '1px solid #ddd', borderRadius: '8px' },
-    header: { textAlign: 'center', color: '#007bff', marginBottom: '30px' },
-    instruction: { textAlign: 'center', marginBottom: '20px', color: '#555' },
-    questionCard: { border: '1px solid #eee', padding: '15px', borderRadius: '4px', marginBottom: '15px', backgroundColor: '#fff' },
-    input: { padding: '8px', width: '60px', border: '1px solid #ccc', borderRadius: '4px', marginTop: '5px' },
-    buttonSubmit: { padding: '12px 25px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', width: '100%', marginTop: '20px', fontSize: '1.1em' },
-};

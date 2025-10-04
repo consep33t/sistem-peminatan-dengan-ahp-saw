@@ -52,78 +52,88 @@ export default function RekomendasiPage() {
     fetchRekomendasi();
   }, [router]); // Tambahkan router ke dependency array
 
-  if (loading) {
-    return <div style={styles.container}>Memuat hasil rekomendasi...</div>;
-  }
+  if (loading) return <div className="max-w-4xl mx-auto mt-12 p-6 text-center">Memuat hasil rekomendasi...</div>;
 
-  if (error) {
-    return <div style={{ ...styles.container, color: 'red', textAlign: 'center' }}>
-        <h1 style={styles.header}>Hasil Rekomendasi</h1>
-        <p>{error}</p>
-        <p style={{marginTop: '20px'}}>Silakan <a href="/siswa/assessment" style={{color: '#007bff'}}>kembali ke Assessment</a> jika belum mengisinya.</p>
-    </div>;
-  }
+  if (error) return (
+    <div className="max-w-4xl mx-auto mt-12 p-6 text-center text-red-600">
+      <h1 className="text-2xl font-semibold mb-2">Hasil Rekomendasi</h1>
+      <p>{error}</p>
+      <p className="mt-4">Silakan <a href="/siswa/assessment" className="text-teal-600 hover:underline">kembali ke Assessment</a> jika belum mengisinya.</p>
+    </div>
+  );
 
-  if (!data || !data.rekomendasi_utama) {
-    return <div style={styles.container}>Data hasil tidak valid.</div>;
-  }
-  
+  if (!data || !data.rekomendasi_utama) return <div className="max-w-4xl mx-auto mt-12 p-6 text-center">Data hasil tidak valid.</div>;
+
   const { siswa, rekomendasi_utama, ranking_lengkap } = data;
 
   return (
-    <div style={styles.container}>
-      <h1 style={styles.header}>Hasil Rekomendasi Jurusan</h1>
-      
-      <div style={styles.profileBox}>
+    <div className="max-w-4xl mx-auto p-6 card">
+      <h1 className="text-2xl text-teal-600 font-semibold text-center mb-4">Hasil Rekomendasi Jurusan</h1>
+
+      <div className="p-4 mb-6 rounded-md border bg-gray-50 dark:bg-slate-800">
         <p><strong>Siswa:</strong> {siswa.nama}</p>
         <p><strong>NISN:</strong> {siswa.nisn}</p>
       </div>
 
-      <div style={styles.mainResult}>
-        <h2>Rekomendasi Utama Terbaik:</h2>
-        <div style={styles.resultBox}>
-          <h3>{rekomendasi_utama.jurusan}</h3>
-          <p>Skor SAW: <strong>{rekomendasi_utama.skor}</strong></p>
+      
+
+      <div className="text-center mb-8">
+        <h2 className="text-lg font-medium mb-2">Rekomendasi Utama Terbaik:</h2>
+        <div className="inline-block px-8 py-6 bg-green-600 text-white rounded-lg shadow-md">
+          <h3 className="text-xl font-semibold">{rekomendasi_utama.jurusan}</h3>
+          <p className="mt-1">Skor SAW: <strong>{rekomendasi_utama.skor}</strong></p>
         </div>
       </div>
-      
-      {/* Tabel Ranking Lengkap */}
-      <h2 style={{marginTop: '40px', borderBottom: '2px solid #eee', paddingBottom: '10px'}}>Daftar Ranking Jurusan Lengkap</h2>
-      
-      <table style={styles.table}>
-        <thead>
-          <tr>
-            <th style={styles.th}>Ranking</th>
-            <th style={styles.th}>Jurusan</th>
-            <th style={styles.th}>Skor SAW</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ranking_lengkap.map((item) => (
-            <tr key={item.ranking} style={item.ranking === 1 ? styles.rowHighlight : {}}>
-              <td style={styles.td}>{item.ranking}</td>
-              <td style={styles.td}>
-                {item.jurusan}
-                {item.ranking === 1 && <span style={styles.badge}> (TERBAIK)</span>}
-              </td>
-              <td style={styles.td}>{item.skor}</td>
+
+      {/* Per-jurusan chart */}
+      <section aria-label="Grafik skor jurusan" className="mb-8">
+        <h3 className="text-lg font-medium mb-3">Visualisasi Skor SAW per Jurusan</h3>
+        <div className="space-y-3">
+          {(() => {
+            const rows = ranking_lengkap || [];
+            const scores = rows.map(r => parseFloat(r.skor) || 0);
+            const max = scores.length ? Math.max(...scores) : 1;
+            return rows.map((r) => {
+              const score = parseFloat(r.skor) || 0;
+              const pct = max > 0 ? Math.round((score / max) * 100) : 0;
+              return (
+                <div key={r.jurusan} className="flex items-center gap-3">
+                  <div className="w-40 text-sm text-slate-700 dark:text-slate-200">{r.jurusan}</div>
+                  <div className="flex-1">
+                    <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-md h-4 overflow-hidden">
+                      <div className={`h-4 rounded-md ${r.ranking === 1 ? 'bg-amber-400' : 'bg-teal-500'}`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                  <div className="w-24 text-right text-sm font-mono text-slate-600 dark:text-slate-300">{score.toFixed(4)}</div>
+                </div>
+              );
+            });
+          })()}
+        </div>
+      </section>
+
+      <h2 className="mt-6 mb-3 text-lg font-medium border-b pb-2">Daftar Ranking Jurusan Lengkap</h2>
+
+      <div className="overflow-x-auto">
+        <table className="w-full table-auto border-collapse">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="p-3 text-left">Ranking</th>
+              <th className="p-3 text-left">Jurusan</th>
+              <th className="p-3 text-left">Skor SAW</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {ranking_lengkap.map((item) => (
+              <tr key={item.ranking} className={item.ranking === 1 ? 'bg-green-50 font-semibold' : ''}>
+                <td className="p-3">{item.ranking}</td>
+                <td className="p-3">{item.jurusan}{item.ranking === 1 && <span className="ml-2 inline-block bg-yellow-300 text-slate-800 px-2 py-0.5 rounded text-sm">TERBAIK</span>}</td>
+                <td className="p-3">{item.skor}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
-
-const styles = {
-    container: { maxWidth: '900px', margin: '50px auto', padding: '25px', border: '1px solid #ddd', borderRadius: '10px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' },
-    header: { textAlign: 'center', color: '#007bff', marginBottom: '20px' },
-    profileBox: { backgroundColor: '#f9f9f9', padding: '15px', borderRadius: '6px', marginBottom: '30px', border: '1px solid #eee' },
-    mainResult: { textAlign: 'center', marginBottom: '40px' },
-    resultBox: { display: 'inline-block', padding: '20px 40px', backgroundColor: '#28a745', color: 'white', borderRadius: '8px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' },
-    table: { width: '100%', borderCollapse: 'collapse', marginTop: '20px' },
-    th: { border: '1px solid #ddd', padding: '12px', textAlign: 'left', backgroundColor: '#f2f2f2' },
-    td: { border: '1px solid #ddd', padding: '12px', textAlign: 'left' },
-    rowHighlight: { backgroundColor: '#e6ffe6', fontWeight: 'bold' },
-    badge: { backgroundColor: '#ffc107', color: '#333', padding: '2px 6px', borderRadius: '3px', marginLeft: '10px', fontSize: '0.8em' }
-};
